@@ -121,16 +121,42 @@ export default function App() {
           <div className="help">Enter your <b>Team #</b>, <b>Team PIN</b>, <b>Step #</b>, and the <b>Answer</b>.</div>
 
           <form onSubmit={submit} noValidate>
-            <div className="row">
+            {/*<div className="row">*/}
+            {/*  <div>*/}
+            {/*    <label htmlFor="team">Team Number</label>*/}
+            {/*    <input id="team" type="number" min="1" value={team}*/}
+            {/*           onChange={e=>setTeam(e.target.value)} placeholder="e.g., 1" disabled={disabled}/>*/}
+            {/*  </div>*/}
+            {/*  <div>*/}
+            {/*    <label htmlFor="pin">Team PIN</label>*/}
+            {/*    <input id="pin" type="text" value={pin}*/}
+            {/*           onChange={e=>setPin(e.target.value)} placeholder="e.g., 4529" disabled={disabled}/>*/}
+            {/*  </div>*/}
+            {/*</div>*/}
+
+              <div className="row-inline">
               <div>
                 <label htmlFor="team">Team Number</label>
-                <input id="team" type="number" min="1" value={team}
-                       onChange={e=>setTeam(e.target.value)} placeholder="e.g., 1" disabled={disabled}/>
+                <input
+                  id="team"
+                  type="number"
+                  min="1"
+                  value={team}
+                  onChange={e => setTeam(e.target.value)}
+                  placeholder="e.g., 1"
+                  disabled={disabled}
+                />
               </div>
               <div>
                 <label htmlFor="pin">Team PIN</label>
-                <input id="pin" type="text" value={pin}
-                       onChange={e=>setPin(e.target.value)} placeholder="e.g., 4529" disabled={disabled}/>
+                <input
+                  id="pin"
+                  type="password"
+                  value={pin}
+                  onChange={e => setPin(e.target.value)}
+                  placeholder="secret"
+                  disabled={disabled}
+                />
               </div>
             </div>
 

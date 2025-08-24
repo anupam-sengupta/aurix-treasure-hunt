@@ -94,7 +94,17 @@ button:hover { transform: translateY(-1px); }
 button:disabled { opacity: .6; cursor: not-allowed; }
 
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+/*@media (max-width: 640px) { .row { grid-template-columns: 1fr; } }*/
+/* Put Team # and Team PIN side by side on small screens */
+@media (max-width: 600px) {
+  .row-inline {
+    display: flex;
+    gap: 8px;        /* space between the two inputs */
+  }
+  .row-inline > div {
+    flex: 1;         /* each takes half width */
+  }
+}
 
 .alert { margin-top: 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid; }
 .alert.err { background: #fff1f2; color: #9f1239; border-color: #fecdd3; }
