@@ -27,6 +27,39 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// ---- GitHub commit helpers ----
+async function githubGetSha({ token, repo, path, branch }) {
+  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+  const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' } });
+  if (resp.status === 404) return null; // new file
+  if (!resp.ok) throw new Error(`GitHub GET failed: ${resp.status}`);
+  const json = await resp.json();
+  return json.sha || null;
+}
+
+async function githubUpsertFile({ token, repo, path, branch, contentBuffer, message, committer }) {
+  const sha = await githubGetSha({ token, repo, path, branch });
+  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}`;
+  const body = {
+    message,
+    branch,
+    content: Buffer.from(contentBuffer).toString('base64'),
+    sha: sha || undefined,
+    committer: committer || undefined,
+  };
+  const resp = await fetch(url, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    const txt = await resp.text().catch(()=> '');
+    throw new Error(`GitHub PUT failed: ${resp.status} ${txt}`);
+  }
+  return await resp.json();
+}
+
+
 /**
  * Store shape:
  *   clueMap key = `${team}-${step}`
@@ -141,7 +174,34 @@ app.post('/api/upload', requireAdminSecret, upload.single('file'), (req, res) =>
     clueMap = m;
     teamPins = tp;
     saveToDisk();
-    res.json({ ok: true, count: clueMap.size, teams: teamPins.size, stepsMax: MAX_STEPS });
+
+        let committed = false, commitError = null;
+        try {
+          const token = process.env.GITHUB_TOKEN;
+          const repo  = process.env.GITHUB_REPO;   // "user/repo"
+          const path  = process.env.GITHUB_PATH;   // e.g. "ops/prod-clues.csv"
+          const branch= process.env.GITHUB_BRANCH || 'main';
+          if (token && repo && path) {
+            const committer = (process.env.GITHUB_COMMITTER_NAME && process.env.GITHUB_COMMITTER_EMAIL)
+              ? { name: process.env.GITHUB_COMMITTER_NAME, email: process.env.GITHUB_COMMITTER_EMAIL }
+              : undefined;
+
+            // commit the EXACT CSV that admin uploaded
+            await githubUpsertFile({
+              token, repo, path, branch,
+              contentBuffer: req.file.buffer,
+              message: `chore(clues): update via admin upload (${new Date().toISOString()})`,
+              committer,
+            });
+            committed = true;
+          }
+        } catch (e) {
+          commitError = e.message || 'commit failed';
+        }
+
+        return res.json({ ok: true, count: clueMap.size, teams: teamPins.size, stepsMax: MAX_STEPS, committed, commitError });
+
+    // res.json({ ok: true, count: clueMap.size, teams: teamPins.size, stepsMax: MAX_STEPS });
   } catch (e) {
     res.status(400).json({ ok: false, error: e.message || 'Failed to parse CSV' });
   }
