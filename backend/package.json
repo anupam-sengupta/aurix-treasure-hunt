@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "main": "src/server.js",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "csv-parse": "^5.5.6",
