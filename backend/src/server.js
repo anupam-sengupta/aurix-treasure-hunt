@@ -135,10 +135,13 @@ app.get('/api/status', (req, res) => {
   res.json({ ok: true, count: clueMap.size, teams: new Set([...clueMap.keys()].map(k => Number(k.split('-')[0]))).size });
 });
 
-// Upload CSV (now requires team_pin column)
-app.post('/api/upload', requireAdminSecret, upload.single('file'), (req, res) => {
+// Upload CSV (now requires team_pin column, and commits to GitHub)
+app.post('/api/upload', requireAdminSecret, upload.single('file'), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ ok: false, error: 'No file uploaded (field "file")' });
+    if (!req.file) {
+      return res.status(400).json({ ok: false, error: 'No file uploaded (field "file")' });
+    }
+
     const rows = parse(req.file.buffer.toString('utf8'), { columns: true, skip_empty_lines: true });
 
     const m = new Map();
@@ -152,8 +155,8 @@ app.post('/api/upload', requireAdminSecret, upload.single('file'), (req, res) =>
       const input = normalize(r.input_clue);
       const output = String(r.output_clue ?? '');
 
-      if (!Number.isInteger(tn) || tn < 1 || tn > MAX_TEAMS) throw new Error(`Row ${i + 2}: Invalid team_number (1..${MAX_TEAMS})`);
-      if (!Number.isInteger(sn) || sn < 1 || sn > MAX_STEPS) throw new Error(`Row ${i + 2}: Invalid step_number (1..${MAX_STEPS})`);
+      if (!Number.isInteger(tn) || tn < 1 || tn > MAX_TEAMS) throw new Error(`Row ${i + 2}: Invalid team_number`);
+      if (!Number.isInteger(sn) || sn < 1 || sn > MAX_STEPS) throw new Error(`Row ${i + 2}: Invalid step_number`);
       if (!pinRaw) throw new Error(`Row ${i + 2}: team_pin is required`);
       if (!input) throw new Error(`Row ${i + 2}: input_clue is required`);
       if (!output) throw new Error(`Row ${i + 2}: output_clue is required`);
@@ -175,38 +178,44 @@ app.post('/api/upload', requireAdminSecret, upload.single('file'), (req, res) =>
     teamPins = tp;
     saveToDisk();
 
-        let committed = false, commitError = null;
-        try {
-          const token = process.env.GITHUB_TOKEN;
-          const repo  = process.env.GITHUB_REPO;   // "user/repo"
-          const path  = process.env.GITHUB_PATH;   // e.g. "ops/prod-clues.csv"
-          const branch= process.env.GITHUB_BRANCH || 'main';
-          if (token && repo && path) {
-            const committer = (process.env.GITHUB_COMMITTER_NAME && process.env.GITHUB_COMMITTER_EMAIL)
-              ? { name: process.env.GITHUB_COMMITTER_NAME, email: process.env.GITHUB_COMMITTER_EMAIL }
-              : undefined;
+    // GitHub commit part
+    let committed = false, commitError = null;
+    try {
+      const token = process.env.GITHUB_TOKEN;
+      const repo  = process.env.GITHUB_REPO;   // "user/repo"
+      const path  = process.env.GITHUB_PATH;   // e.g. "ops/prod-clues.csv"
+      const branch= process.env.GITHUB_BRANCH || 'main';
 
-            // commit the EXACT CSV that admin uploaded
-            await githubUpsertFile({
-              token, repo, path, branch,
-              contentBuffer: req.file.buffer,
-              message: `chore(clues): update via admin upload (${new Date().toISOString()})`,
-              committer,
-            });
-            committed = true;
-          }
-        } catch (e) {
-          commitError = e.message || 'commit failed';
-        }
+      if (token && repo && path) {
+        const committer = (process.env.GITHUB_COMMITTER_NAME && process.env.GITHUB_COMMITTER_EMAIL)
+          ? { name: process.env.GITHUB_COMMITTER_NAME, email: process.env.GITHUB_COMMITTER_EMAIL }
+          : undefined;
 
-        return res.json({ ok: true, count: clueMap.size, teams: teamPins.size, stepsMax: MAX_STEPS, committed, commitError });
+        await githubUpsertFile({
+          token, repo, path, branch,
+          contentBuffer: req.file.buffer,
+          message: `chore(clues): update via admin upload (${new Date().toISOString()})`,
+          committer,
+        });
+        committed = true;
+      }
+    } catch (e) {
+      commitError = e.message || 'commit failed';
+    }
 
-    // res.json({ ok: true, count: clueMap.size, teams: teamPins.size, stepsMax: MAX_STEPS });
+    return res.json({
+      ok: true,
+      count: clueMap.size,
+      teams: teamPins.size,
+      stepsMax: MAX_STEPS,
+      committed,
+      commitError,
+    });
+
   } catch (e) {
-    res.status(400).json({ ok: false, error: e.message || 'Failed to parse CSV' });
+    return res.status(400).json({ ok: false, error: e.message || 'Failed to parse CSV' });
   }
 });
-
 // Verify (requires teamNumber, stepNumber, inputClue, teamPin)
 app.post('/api/verify', verifyLimiter, (req, res) => {
   const { teamNumber, stepNumber, inputClue, teamPin } = req.body || {};
@@ -277,5 +286,10 @@ document.getElementById('f').addEventListener('submit', async (e) => {
 });
 
 const PORT = process.env.PORT || 4000;
-loadFromDisk();
-app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
+        (async () => {
+          loadFromDisk();
+          await bootstrapFromUrl();   // ok now
+          app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
+        })();
+// loadFromDisk();
+// app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
