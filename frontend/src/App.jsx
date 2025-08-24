@@ -37,7 +37,11 @@ export default function App() {
     const id = setInterval(() => {
       setCooldown((c) => {
         const next = c - 1
-        if (next <= 0) localStorage.removeItem(COOLDOWN_KEY)
+        if (next <= 0) {
+            localStorage.removeItem(COOLDOWN_KEY)
+            setRemaining(null)
+            setErr('')    // clear the red message here
+        }
         return next
       })
     }, 1000)
@@ -117,7 +121,7 @@ export default function App() {
 
       <main className="main">
         <div className="card" role="region" aria-label="Clue form">
-          <h1>SparkX by AURIX : Get your HINT here</h1>
+          <h1>SparkX by AURIX : your HINT</h1>
           <div className="help">Enter your <b>Team #</b>, <b>Team PIN</b>, <b>Step #</b>, and the <b>Answer</b>.</div>
 
           <form onSubmit={submit} noValidate>
@@ -167,7 +171,7 @@ export default function App() {
 
           {remaining !== null && cooldown === 0 && (
             <div className="help" style={{marginTop: 8}}>
-              Attempts left in this window: <b>{remaining}</b>
+              Attempts left before Timeout: <b>{remaining}</b>
             </div>
           )}
 
