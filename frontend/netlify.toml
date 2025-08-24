@@ -3,3 +3,9 @@
   to = "https://aurix-treasure-hunt-backend.onrender.com/admin"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://aurix-treasure-hunt-backend.onrender.com/api/:splat"
+  status = 200
+  force = true
