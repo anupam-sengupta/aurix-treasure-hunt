@@ -20,12 +20,74 @@ const MAX_STEPS = Number(process.env.MAX_STEPS || 20);
 const WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60000);   // 1 min default
 const MAX_ATTEMPTS = Number(process.env.RATE_LIMIT_MAX_ATTEMPTS || 20); // 20 req/min default
 
+
 const app = express();
 app.use(cors({
   origin: '*', // dev; tighten in prod if needed
   exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'Retry-After'],
 }));
 app.use(express.json());
+
+// ---- optional bootstrap: load clues from a remote CSV/JSON on boot ----
+async function bootstrapFromUrl() {
+  try {
+    const url = process.env.CLUES_BOOTSTRAP_URL;
+    if (!url) return;                         // nothing to do
+    if (clueMap.size > 0) return;             // already loaded (e.g., from disk)
+
+    console.log('[bootstrap] Fetching clues from', url);
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const body = await resp.text();
+
+    const m = new Map();
+    const tp = new Map();
+
+    // JSON or CSV?
+    const isJSON = url.toLowerCase().endsWith('.json') || body.trim().startsWith('{');
+
+    if (isJSON) {
+      const obj = JSON.parse(body);
+      for (const [k, v] of Object.entries(obj)) {
+        m.set(k, v);
+        const team = Number(k.split('-')[0]);
+        if (v?.pin) tp.set(team, v.pin);
+      }
+    } else {
+      const rows = parse(body, { columns: true, skip_empty_lines: true });
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        const tn = Number(r.team_number);
+        const sn = Number(r.step_number);
+        const pinRaw = (r.team_pin || '').trim();
+        const input = normalize(r.input_clue);
+        const output = String(r.output_clue ?? '');
+
+        if (!Number.isInteger(tn) || tn < 1 || tn > MAX_TEAMS) throw new Error(`Row ${i+2}: bad team_number`);
+        if (!Number.isInteger(sn) || sn < 1 || sn > MAX_STEPS) throw new Error(`Row ${i+2}: bad step_number`);
+        if (!pinRaw) throw new Error(`Row ${i+2}: team_pin required`);
+        if (!input)  throw new Error(`Row ${i+2}: input_clue required`);
+        if (!output) throw new Error(`Row ${i+2}: output_clue required`);
+
+        const key = `${tn}-${sn}`;
+        if (m.has(key)) throw new Error(`Dup team/step at row ${i+2}: ${key}`);
+
+        const pin = normalizePin(pinRaw);
+        const existing = tp.get(tn);
+        if (existing && existing !== pin) throw new Error(`Row ${i+2}: PIN mismatch for team ${tn}`);
+
+        tp.set(tn, pin);
+        m.set(key, { in: input, out: output, pin });
+      }
+    }
+
+    clueMap = m;
+    teamPins = tp;
+    console.log(`[bootstrap] Loaded ${clueMap.size} clues from URL`);
+  } catch (e) {
+    console.error('[bootstrap] Failed:', e.message);
+  }
+}
 
 // ---- GitHub commit helpers ----
 async function githubGetSha({ token, repo, path, branch }) {
