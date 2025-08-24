@@ -114,15 +114,15 @@ export default function App() {
 
   return (
     <div className="container">
-      <header className="headerbar">
-        <img className="logo" src={LOGO} alt="Logo" onError={(e)=>{e.currentTarget.style.display='none'}}/>
-        <div className="brand-title">Treasure Hunt</div>
-      </header>
+         <header className="headerbar header-hero">
+          <img className="logo logo-big" src={LOGO} alt="Logo"
+               onError={(e)=>{e.currentTarget.style.display='none'}} />
+          <h1 className="brand-title">Treasure Hunt</h1>
+        </header>
 
       <main className="main">
         <div className="card" role="region" aria-label="Clue form">
-          <h1>SparkX by AURIX : your HINT</h1>
-          <div className="help">Enter your <b>Team #</b>, <b>Team PIN</b>, <b>Step #</b>, and the <b>Answer</b>.</div>
+                <div className="help">Enter your <b>Team #</b>, <b>Team PIN</b>, <b>Step #</b>, and the <b>Answer</b>.</div>
 
           <form onSubmit={submit} noValidate>
             {/*<div className="row">*/}

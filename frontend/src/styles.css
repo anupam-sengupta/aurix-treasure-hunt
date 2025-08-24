@@ -42,11 +42,33 @@ body {
   height: 40px; width: auto; display: block;
 }
 
-.brand-title {
-  font-weight: 800; font-size: 1.1rem; color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+/* Centered hero header on all screens */
+.headerbar.header-hero {
+  display: flex;
+  flex-direction: column;     /* stack logo over title */
+  align-items: center;        /* horizontal center */
+  justify-content: center;    /* vertical center within headerbar */
+  text-align: center;
+  gap: 8px;
+  padding: 16px 0 8px;
+  width: 100%;
 }
 
+/* Make the logo bigger */
+.logo-big {
+  width: 180px;               /* tweak to taste (e.g., 200px) */
+  height: auto;
+}
+
+/* Title under the logo */
+.brand-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 4.0vw, 2.3rem);
+  color: #ffffff;             /* readable over bg */
+  text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  text-align: center;
+}
 .main {
   display: grid; place-items: center;
   padding: 16px;
