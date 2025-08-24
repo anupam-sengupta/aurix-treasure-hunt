@@ -324,7 +324,7 @@ label{display:block;margin:8px 0 4px} input,button{padding:8px} .ok{color:green}
 </head><body><div class="card">
 <h2>Upload Clues CSV</h2>
 <form id="f">
-${needSecret ? '<label>Admin Secret</label><input id="sec" type="password" placeholder="ADMIN_SECRET" required />' : '<p><em>No ADMIN_SECRET set. Upload is open.</em></p>'}
+${needSecret ? '<label>Admin Secret</label><input id="sec" type="password" placeholder="ADMIN_SECRET" autocomplete="new-password" value="" required />' : '<p><em>No ADMIN_SECRET set. Upload is open.</em></p>'}
 <label>CSV File (with team_pin)</label><input id="file" type="file" accept=".csv" required />
 <button>Upload</button><div id="msg" style="margin-top:8px"></div>
 </form></div>
