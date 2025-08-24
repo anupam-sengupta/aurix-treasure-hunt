@@ -137,26 +137,13 @@ export default function App() {
               <div className="row-inline">
               <div>
                 <label htmlFor="team">Team Number</label>
-                <input
-                  id="team"
-                  type="number"
-                  min="1"
-                  value={team}
-                  onChange={e => setTeam(e.target.value)}
-                  placeholder="e.g., 1"
-                  disabled={disabled}
-                />
+                <input id="team" type="number" min="1" value={team}
+                  onChange={e => setTeam(e.target.value)}  placeholder="e.g., 1" disabled={disabled}/>
               </div>
               <div>
                 <label htmlFor="pin">Team PIN</label>
-                <input
-                  id="pin"
-                  type="password"
-                  value={pin}
-                  onChange={e => setPin(e.target.value)}
-                  placeholder="secret"
-                  disabled={disabled}
-                />
+                <input id="pin" type="text" value={pin}
+                  onChange={e => setPin(e.target.value)} placeholder="secret" disabled={disabled}/>
               </div>
             </div>
 
