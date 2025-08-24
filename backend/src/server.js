@@ -91,7 +91,7 @@ async function bootstrapFromUrl() {
 
 // ---- GitHub commit helpers ----
 async function githubGetSha({ token, repo, path, branch }) {
-  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+  const url = `https://api.github.com/repos/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`;
   const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' } });
   if (resp.status === 404) return null; // new file
   if (!resp.ok) throw new Error(`GitHub GET failed: ${resp.status}`);
@@ -101,7 +101,7 @@ async function githubGetSha({ token, repo, path, branch }) {
 
 async function githubUpsertFile({ token, repo, path, branch, contentBuffer, message, committer }) {
   const sha = await githubGetSha({ token, repo, path, branch });
-  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}`;
+  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
   const body = {
     message,
     branch,
