@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/admin"
+  to = "https://aurix-treasure-hunt-backend.onrender.com/admin"
+  status = 200
+  force = true
