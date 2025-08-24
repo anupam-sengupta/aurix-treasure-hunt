@@ -340,8 +340,20 @@ document.getElementById('f').addEventListener('submit', async (e) => {
   const resp = await fetch('/api/upload', { method: 'POST', body: fd, headers });
   const data = await resp.json();
   const msg = document.getElementById('msg');
-  if (data.ok) { msg.className='ok'; msg.textContent = 'Uploaded. Count=' + data.count + ', Teams=' + data.teams; }
-  else { msg.className='err'; msg.textContent = data.error || 'Upload failed'; }
+  if (data.ok) {
+    let text = 'Uploaded. Count=' + data.count + ', Teams=' + data.teams;
+    if (data.committed) {
+     text += ' — Saved to GitHub ✅';
+    } else if (data.commitError) {
+     text += ' — (GitHub commit failed: ' + data.commitError + ')';
+    }
+    msg.className='ok';
+    msg.textContent = text;
+    } 
+  else {
+    msg.className='err';
+    msg.textContent = data.error || 'Upload failed';
+}
 });
 </script></body></html>`;
   res.set('content-type', 'text/html; charset=utf-8').send(html);
