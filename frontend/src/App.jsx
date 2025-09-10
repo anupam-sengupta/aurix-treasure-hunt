@@ -56,7 +56,7 @@ export default function App() {
     setLoading(true)
     try {
       const tn = Number(team), sn = Number(step)
-      if (!Number.isInteger(tn) || tn < 1) throw new Error('Team Seq number must be ≥ 1')
+      if (!Number.isInteger(tn) || tn < 1) throw new Error('Team Sequence number must be ≥ 1')
       if (!pin.trim()) throw new Error('Team is required')
       if (!Number.isInteger(sn) || sn < 1) throw new Error('Step number must be ≥ 1')
       if (!input.trim()) throw new Error('Input clue is required')
