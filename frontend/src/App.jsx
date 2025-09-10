@@ -122,7 +122,7 @@ export default function App() {
 
       <main className="main">
         <div className="card" role="region" aria-label="Clue form">
-                <div className="help">Enter your <b>Team #</b>, <b>Team PIN</b>, <b>Step #</b>, and the <b>Answer</b>.</div>
+                <div className="help">Enter your <b>Team Seq #</b>, <b>Team</b>, <b>Step #</b>, and the <b>Answer</b>.</div>
 
           <form onSubmit={submit} noValidate>
             {/*<div className="row">*/}
