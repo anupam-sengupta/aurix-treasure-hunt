@@ -292,7 +292,7 @@ app.post('/api/verify', verifyLimiter, (req, res) => {
     return res.status(400).json({ ok: false, error: `Invalid stepNumber (1..${MAX_STEPS})` });
   }
   if (!pin) {
-    return res.status(400).json({ ok: false, error: 'teamPin is required' });
+    return res.status(400).json({ ok: false, error: 'Team is required' });
   }
 
   // Check that PIN matches the team’s registered PIN
@@ -301,7 +301,7 @@ app.post('/api/verify', verifyLimiter, (req, res) => {
     return res.status(404).json({ ok: false, error: 'Unknown team' });
   }
   if (pin !== canonicalPin) {
-    return res.status(401).json({ ok: false, error: 'Invalid team PIN' });
+    return res.status(401).json({ ok: false, error: 'Invalid Team' });
   }
 
   const key = `${tn}-${sn}`;
