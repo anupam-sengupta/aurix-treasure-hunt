@@ -140,12 +140,12 @@ export default function App() {
 
               <div className="row-inline">
               <div>
-                <label htmlFor="team">Team Number</label>
+                <label htmlFor="team">Team Seq Number</label>
                 <input id="team" type="number" min="1" value={team}
                   onChange={e => setTeam(e.target.value)}  placeholder="e.g., 1" disabled={disabled}/>
               </div>
               <div>
-                <label htmlFor="pin">Team PIN</label>
+                <label htmlFor="pin">Team</label>
                 <input id="pin" type="text" value={pin}
                   onChange={e => setPin(e.target.value)} placeholder="secret" disabled={disabled}/>
               </div>
