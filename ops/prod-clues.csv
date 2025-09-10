@@ -1,13 +1,20 @@
 team_number,team_pin,step_number,input_clue,output_clue
-1,PA,4,Treasure Trackers,Mango - Scan and collect 4 QR Code
-1,PA,5,START456,NEXT-ALPHA-1-6
-2,222,4,START123,NEXT-ALPHA-2-4
-2,222,6,START456,NEXT-ALPHA-2-6
-3,333,4,START123,NEXT-ALPHA-3-4
-3,333,6,START456,NEXT-ALPHA-3-6
-4,444,4,START123,NEXT-ALPHA-4-4
-4,444,6,START456,NEXT-ALPHA-4-6
-15,1515,4,START123,NEXT-ALPHA-15-4
-15,1515,6,START456,NEXT-ALPHA-15-6
-16,1616,4,START123,NEXT-ALPHA-16-4
-16,1616,6,START456,NEXT-ALPHA-16-6
+1,PA,4,Secret Seekers,scan and collect all 4 Black Panther and take screen shot.
+2,CA,4,Gryffindor,scan and collect all 4 Harry potter and take screen shot.
+3,PB,4,Mystery Mavericks,scan and collect all 4 Tiger and take screen shot.
+4,PC,4,Logic Legends,scan and collect all 4 Lion and take screen shot.
+5,GA,4,Mission Possible,scan and collect all 4  Orange and take screen shot.
+6,PD,4,Sherlock Squad,scan and collect all 4  Rhinoceros and take screen shot.
+7,PE,4,Hunters,scan and collect all 4 Elephant and take screen shot.
+8,PF,4,Treasure Trackers,scan and collect all 4 mangos and take screen shot.
+9,PG,4,Nonsense,scan and collect all 4 Monkey and take screen shot.
+10,PH,4,Treasure Titans,scan and collect all 4 Koala and take screen shot.
+11,PI,4,Gold Diggers,scan and collect all 4 Cow and take screen shot.
+12,PJ,4,The Hidden Pathfinders,scan and collect all 4 Dog and take screen shot.
+13,CB,4,Team Rocket v10.c,scan and collect all 4  Pokemon and take screen shot.
+14,PK,4,Hawk eyes,scan and collect all 4 Camel and take screen shot.
+15,PL,4,indiana jones,scan and collect all 4 Panda  and take screen shot.
+16,PM,4,The Clue Cuties,scan and collect all 4 Cat and take screen shot.
+17,PN,4,Saste Sherlocks,scan and collect all 4 Rabbit  and take screen shot.
+18,PO,4,Code Crackers,scan and collect all 4 Sheep and take screen shot.
+19,GB,4,Mystery,scan and collect all 4 Banana and take screen shot.
