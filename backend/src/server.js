@@ -286,10 +286,7 @@ app.post('/api/verify', verifyLimiter, (req, res) => {
   const sn = Number(stepNumber);
   const pin = normalizePin(teamPin);
 
-  import fs from "fs";
-    import path from "path";
-
-    const AUDIT_PATH = path.join(DATA_DIR, "audit.log");
+  const AUDIT_PATH = path.join(DATA_DIR, "audit.log");
 
     function logAttempt({ teamNumber, stepNumber, teamPin, inputClue, ok }) {
       const entry = {
