@@ -285,6 +285,22 @@ app.post('/api/verify', verifyLimiter, (req, res) => {
   const tn = Number(teamNumber);
   const sn = Number(stepNumber);
   const pin = normalizePin(teamPin);
+
+  import fs from "fs";
+    import path from "path";
+
+    const AUDIT_PATH = path.join(DATA_DIR, "audit.log");
+
+    function logAttempt({ teamNumber, stepNumber, teamPin, inputClue, ok }) {
+      const entry = {
+        ts: new Date().toISOString(),
+        teamNumber,
+        stepNumber,
+        inputClue,
+        ok
+      };
+      fs.appendFileSync(AUDIT_PATH, JSON.stringify(entry) + "\n", "utf8");
+    }
   if (!Number.isInteger(tn) || tn < 1 || tn > MAX_TEAMS) {
     return res.status(400).json({ ok: false, error: `Invalid teamNumber (1..${MAX_TEAMS})` });
   }
@@ -292,25 +308,34 @@ app.post('/api/verify', verifyLimiter, (req, res) => {
     return res.status(400).json({ ok: false, error: `Invalid stepNumber (1..${MAX_STEPS})` });
   }
   if (!pin) {
+    logAttempt({ teamNumber: tn, stepNumber: sn, teamPin: pin, inputClue, ok: false });
     return res.status(400).json({ ok: false, error: 'Team is required' });
   }
 
   // Check that PIN matches the team’s registered PIN
   const canonicalPin = teamPins.get(tn);
   if (!canonicalPin) {
+    logAttempt({ teamNumber: tn, stepNumber: sn, teamPin: pin, inputClue, ok: false });
     return res.status(404).json({ ok: false, error: 'Unknown team' });
   }
   if (pin !== canonicalPin) {
+    logAttempt({ teamNumber: tn, stepNumber: sn, teamPin: pin, inputClue, ok: false });
     return res.status(401).json({ ok: false, error: 'Invalid Team' });
   }
 
   const key = `${tn}-${sn}`;
   const rec = clueMap.get(key);
-  if (!rec) return res.status(404).json({ ok: false, error: 'No clue configured for this team/step' });
+  if (!rec) {
+  logAttempt({ teamNumber: tn, stepNumber: sn, teamPin: pin, inputClue, ok: false });
+    return res.status(404).json({ ok: false, error: 'No clue configured for this team/step' });
+  }
 
   if (normalize(inputClue) !== rec.in) {
+      logAttempt({ teamNumber: tn, stepNumber: sn, teamPin: pin, inputClue, ok: false });
     return res.status(400).json({ ok: false, error: 'Incorrect input clue for this team/step' });
   }
+
+  logAttempt({ teamNumber: tn, stepNumber: sn, teamPin: pin, inputClue, ok: true });
   return res.json({ ok: true, outputClue: rec.out });
 });
 
