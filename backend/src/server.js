@@ -360,10 +360,41 @@ document.getElementById('f').addEventListener('submit', async (e) => {
 });
 
 const PORT = process.env.PORT || 4000;
-        (async () => {
-          loadFromDisk();
-          await bootstrapFromUrl();   // ok now
-          app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
-        })();
+(async () => {
+  loadFromDisk(); // optional fallback
+
+  try {
+    const bust = process.env.CLUES_BOOTSTRAP_URL + '?t=' + Date.now();
+    const resp = await fetch(bust, { cache: 'no-store' });
+    if (resp.ok) {
+      const csv = await resp.text();
+      const rows = parse(csv, { columns: true, skip_empty_lines: true });
+      const m = new Map(), tp = new Map();
+
+      rows.forEach(r => {
+        const tn = Number(r.team_number);
+        const sn = Number(r.step_number);
+        const pin = normalizePin(r.team_pin);
+        m.set(`${tn}-${sn}`, { in: normalize(r.input_clue), out: r.output_clue, pin });
+        tp.set(tn, pin);
+      });
+
+      clueMap = m;
+      teamPins = tp;
+      saveToDisk();
+      console.log(`[bootstrap] reloaded ${clueMap.size} clues from GitHub`);
+    }
+  } catch (e) {
+    console.error('[bootstrap] bootstrap failed:', e.message);
+  }
+
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
+})();
+//        (async () => {
+//          loadFromDisk();
+//          await bootstrapFromUrl();   // ok now
+//          app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
+//        })();
 // loadFromDisk();
 // app.listen(PORT, () => console.log(`Backend running on ${PORT}`));
